@@ -3,4 +3,4 @@ from django.http import HttpResponse
 
 # Create your views here.
 def index_view(request):
-    return HttpResponse('<h1>Working...</h1>')
+    return HttpResponse('<h1>In Maintenance... 🔨</h1>')
