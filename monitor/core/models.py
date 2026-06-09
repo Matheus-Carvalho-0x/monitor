@@ -10,9 +10,9 @@ class TestEnviroments(models.Model):
 
 class TestValues(models.Model):
     test_enviroments_id = models.ForeignKey(TestEnviroments, on_delete=models.CASCADE)
-    env_tp = models.FloatField()
-    suc_tp = models.FloatField()
-    eva_tp = models.FloatField()
-    deg_tp = models.FloatField()
+    env_tp = models.CharField()
+    suc_tp = models.CharField()
+    eva_tp = models.CharField()
+    deg_tp = models.CharField()
     def_status = models.BooleanField()
     date = models.DateTimeField(auto_now=True)
