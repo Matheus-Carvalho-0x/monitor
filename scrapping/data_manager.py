@@ -24,26 +24,39 @@ def data_manager(data):
 
 
 def add_store(data, cursor):
-    cursor.execute("""INSERT INTO core_teststore (name)
-                   VALUES (?)""", (data,))
-    
-    cursor.execute("""SELECT id FROM core_teststore
+    try:
+        cursor.execute("""SELECT id FROM core_teststore
                    WHERE name = ?""", (data,))
-    id = cursor.fetchone()
-    return id
+        id = cursor.fetchone()
+        return id
+    except Exception as e:
+        cursor.execute("""INSERT INTO core_teststore (name)
+                    VALUES (?)""", (data,))
+        
+        cursor.execute("""SELECT id FROM core_teststore
+                    WHERE name = ?""", (data,))
+        id = cursor.fetchone()
+        return id
 
 
 def add_enviroments(data, cursor):
-    cursor.executemany("""INSERT INTO core_testenviroments (name, test_store_id_id)
-                   VALUES (?, ?)""", [(name, data[1]) for name in data[0]])
+    try:
+        placeholders = ",".join("?" for _ in data[0])
+        cursor.execute(f"""SELECT id FROM core_testenviroments 
+                    WHERE name IN ({placeholders})""", data[0])
+        temp = cursor.fetchall()
+        id = [i[0] for i in temp]
+        return id
+    except Exception as e:
+        cursor.executemany("""INSERT INTO core_testenviroments (name, test_store_id_id)
+                    VALUES (?, ?)""", [(name, data[1]) for name in data[0]])
 
-    placeholders = ",".join("?" for _ in data[0])
-    cursor.execute(f"""SELECT id FROM core_testenviroments 
-                   WHERE name IN ({placeholders})""", data[0])
-    temp = cursor.fetchall()
-    id = [i[0] for i in temp]
-    print(id)
-    return id
+        placeholders = ",".join("?" for _ in data[0])
+        cursor.execute(f"""SELECT id FROM core_testenviroments 
+                    WHERE name IN ({placeholders})""", data[0])
+        temp = cursor.fetchall()
+        id = [i[0] for i in temp]
+        return id
 
 
 def add_env_values(data, cursor):
@@ -52,7 +65,6 @@ def add_env_values(data, cursor):
     for i in keys:
         value = data[0][i]
         values.append(value)
-    print(values)
 
     cursor.execute("""INSERT INTO core_testvalues 
                    (eva_tp, suc_tp, env_tp, deg_tp, def_status, test_enviroments_id_id, date) 
