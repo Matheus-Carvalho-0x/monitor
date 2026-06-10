@@ -20,12 +20,18 @@
             </div>
         </nav>
         <!-- CARDS -->
-        <div class="card mt-4 ms-2 me-2 mb-4" style="width: 18rem;">
-            <div class="card-body">
-                <h5 class="card-title">Special title treatment</h5>
-                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
-            </div>
+        <div class="row">
+            {% for store in stores %}
+                <div class="col-2 mt-4 ms-2 me-2 mb-4">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{store.name}}</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <a href="#" class="btn btn-primary">Go somewhere</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </body>
 </html>
