@@ -16,3 +16,11 @@ class TestValues(models.Model):
     deg_tp = models.CharField(max_length=100)
     def_status = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=['test_enviroments_id_id', 'date'],
+                name='idx_envid_date'
+            )
+        ]
