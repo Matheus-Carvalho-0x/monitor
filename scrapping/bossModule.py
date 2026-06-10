@@ -88,7 +88,7 @@ class BossStore:
                 (By.XPATH, "//a[@id='proceed-link']")))
             second_button.click()
         except Exception as _:
-            print(f"ERROR: Confirmation to access URL not requested.")
+            pass
 
         input_login = self.wait.until(EC.presence_of_element_located(
             (By.XPATH, "//input[@id='txtUser']")))
