@@ -4,24 +4,26 @@ import datetime
 
 def data_manager(data):
     # Connection
-    conn = sqlite3.connect("../monitor/db.sqlite3")
-    # Cursor
-    cursor = conn.cursor()
+    with sqlite3.connect("../monitor/db.sqlite3") as conn:
+        # Cursor
+        cursor = conn.cursor()
 
-    if list(data.keys()):
-        store = list(data.keys())[0]
-        res = add_store(store, cursor)
-        if res:
-            env = list(data[store].keys())
-            enviroments = (env, res[0])
-            res = add_enviroments(enviroments, cursor)
+        if list(data.keys()):
+            store = list(data.keys())[0]
+            res = add_store(store, cursor)
             if res:
-                for x in range(len(res)):
-                    values = (data[store][enviroments[0][x]], res[x])
-                    add_env_values(values, cursor)
-                conn.commit()
-                print(f"{store}: OK!")
-                conn.close()
+                env = list(data[store].keys())
+                enviroments = (env, res[0])
+                res = add_enviroments(enviroments, cursor)
+                if res:
+                    for env_name, env_data in data[store].items():
+                        values = (
+                            env_data,
+                            res[env_name]
+                        )
+                        add_env_values(values, cursor)
+                    conn.commit()
+                    print(f"{store}: OK!")
 
 
 def add_store(data, cursor):
@@ -43,23 +45,39 @@ def add_store(data, cursor):
 
 def add_enviroments(data, cursor):
         placeholders = ",".join("?" for _ in data[0])
-        cursor.execute(f"""SELECT id FROM core_testenviroments 
-                    WHERE name IN ({placeholders})""", data[0])
+        cursor.execute(f"""SELECT id, name FROM core_testenviroments 
+                    WHERE name IN ({placeholders})
+                    AND test_store_id_id = ?""", (*data[0], data[1]))
         temp = cursor.fetchall()
-        id = [i[0] for i in temp]
+        
+        env_map = {
+            name: id_
+            for id_, name in temp
+        }
 
-        if id:
-            return id
+        if len(env_map) == len(data[0]):
+            return env_map
         else:
+            missing = [
+                 env
+                 for env in data[0]
+                 if env not in env_map
+            ]
+
             cursor.executemany("""INSERT INTO core_testenviroments (name, test_store_id_id)
-                        VALUES (?, ?)""", [(name, data[1]) for name in data[0]])
+                        VALUES (?, ?)""", [(name, data[1]) for name in missing])
 
             placeholders = ",".join("?" for _ in data[0])
-            cursor.execute(f"""SELECT id FROM core_testenviroments 
-                        WHERE name IN ({placeholders})""", data[0])
+            cursor.execute(f"""SELECT id, name FROM core_testenviroments 
+                        WHERE name IN ({placeholders})
+                        AND test_store_id_id = ?""", (*data[0], data[1]))
             temp = cursor.fetchall()
-            id = [i[0] for i in temp]
-            return id
+            
+            env_map = {
+                name: id_
+                for id_, name in temp
+            }
+            return env_map
 
 
 def add_env_values(data, cursor):

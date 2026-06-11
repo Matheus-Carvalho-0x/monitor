@@ -224,6 +224,7 @@ class BossStore:
         self._formatData()
         self.env_names = []
         self.env_data = []
+        self.driver.close()
 
     def getData(self):
         return self.formatted_data
