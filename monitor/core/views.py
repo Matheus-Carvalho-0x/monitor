@@ -11,3 +11,10 @@ def stores_view(request):
     }
 
     return render(request, 'core/stores.html', context)
+
+def details_view(request, store_id):
+    enviroment_list = TestEnviroments.objects.filter(test_store_id_id=store_id)
+    context = {
+        "env": enviroment_list
+    }
+    return render(request, 'core/enviroments.html', context)
