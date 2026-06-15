@@ -169,6 +169,12 @@ class BossStore:
                         except Exception as _:
                             defrost = "Data Not Found"
                         finally:
+                            if defrost == 'ON':
+                                defrost = True
+                            elif defrost == 'OFF':
+                                defrost = False
+                            else:
+                                defrost = '***'
                             temp.append((tag, defrost))
                             search_bar.clear()
                     else:
@@ -197,7 +203,8 @@ class BossStore:
                             out += 1
                             if out == 10:
                                 break
-                        temp.append((tag, value.text))
+                        value = value.text[:-3]
+                        temp.append((tag, float(value)))
                         search_bar.clear()
                 self.env_data.append(temp)
             except Exception as e:
