@@ -19,13 +19,35 @@ def run_automation():
 
         # --- LOGIN ---
         try:
+            # adjust
             page.locator("button[@id='details-button']").click()
             page.locator("a[@id='proceed-link']").click()
         except Exception as _:
             page.locator("input[name='txtUser']").fill(USER_LOGIN1)
             page.locator("input[name='txtPassword']").fill(PASSWORD_LOGIN1)
             page.get_by_role("button", name="Login").click()
+            page.wait_for_load_state("networkidle")
+
+            # EXTRACT
+            search_for_data = ['tEu', 'tGs', 'SrG', 'd/1', 'Degelo']
+            search_for_env = []
+            data_extracted = []
+
+            # IFRAMES
+            iframe_father = page.frame_locator("#body")
+            iframe_child = iframe_father.frame_locator("#bodytab")
+
+            search_box = iframe_child.locator("input.form-control")
+            search_box.fill("cong")
+            search_box.press("Enter")
+
+            # pegar o nome da loja, ambientes e valores
+
+            # DEBUG
+            print('end')
             input('')
+
+            # CLOSING ALL PROPERLY
             context.close()
             browser.close()
 
