@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 import os
 from dotenv import load_dotenv
+from time import sleep
 
 # Settings
 load_dotenv()
@@ -10,6 +11,7 @@ USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN1")
 PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD1")
 
 def run_automation():
+    # PLAYWRIGHT SETTINGS
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         context = browser.new_context(ignore_https_errors=True)
@@ -28,20 +30,26 @@ def run_automation():
             page.get_by_role("button", name="Login").click()
             page.wait_for_load_state("networkidle")
 
-            # EXTRACT
-            search_for_data = ['tEu', 'tGs', 'SrG', 'd/1', 'Degelo']
+            # DATA EXTRACTED
+            store_name = page.locator("div[id='DateTime'] > div.nopadding > b").inner_text()
             search_for_env = []
+            search_for_data = ['tEu', 'tGs', 'SrG', 'd/1', 'Degelo']
             data_extracted = []
 
             # IFRAMES
             iframe_father = page.frame_locator("#body")
             iframe_child = iframe_father.frame_locator("#bodytab")
 
-            search_box = iframe_child.locator("input.form-control")
-            search_box.fill("cong")
-            search_box.press("Enter")
+            # EXTRACT ALL CARDS
+            env = iframe_child.locator("div.row div[class='col-xs-12 col-sm-12 col-md-4 col-lg-4 btn nopadding']").first
+            env_txt = env.locator("tr.border-underline th:first-of-type").inner_text()
+            # GET ONLY THE 'CONG' ONES
+            # GET ALL THE NAMES
+            # ACCESS EACH OF THEM AND EXTRACT THE DATA
+            
+            
 
-            # pegar o nome da loja, ambientes e valores
+        
 
             # DEBUG
             print('end')
@@ -50,6 +58,7 @@ def run_automation():
             # CLOSING ALL PROPERLY
             context.close()
             browser.close()
+
 
 if __name__ == "__main__":
     run_automation()
