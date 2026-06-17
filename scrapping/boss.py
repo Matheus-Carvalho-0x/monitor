@@ -5,18 +5,29 @@ from dotenv import load_dotenv
 # ===== Settings ======
 load_dotenv()
 
-URL_LOGIN1 = os.getenv("SCRAPPING_TARGET_URL2")
-USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN2")
-PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD2")
+URL_LOGIN1 = os.getenv("SCRAPPING_TARGET_URL1")
+USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN1")
+PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD1")
+URL_LOGIN2 = os.getenv("SCRAPPING_TARGET_URL2")
+USER_LOGIN2 = os.getenv("SCRAPPING_LOGIN2")
+PASSWORD_LOGIN2 = os.getenv("SCRAPPING_PASSWORD2")
+URL_LOGIN3 = os.getenv("SCRAPPING_TARGET_URL3")
+USER_LOGIN3 = os.getenv("SCRAPPING_LOGIN3")
+PASSWORD_LOGIN3 = os.getenv("SCRAPPING_PASSWORD3")
 
-def run_automation():
+login_info = [
+
+    (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3),
+]
+
+def run_automation(url, login, password):
     # ====== Playwright Settings ======
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         context = browser.new_context(ignore_https_errors=True)
         page = context.new_page()
 
-        page.goto(URL_LOGIN1)
+        page.goto(url)
 
         # ====== Login ======
         try:
@@ -24,8 +35,8 @@ def run_automation():
             page.locator("button[@id='details-button']").click()
             page.locator("a[@id='proceed-link']").click()
         except Exception as _:
-            page.locator("input[name='txtUser']").fill(USER_LOGIN1)
-            page.locator("input[name='txtPassword']").fill(PASSWORD_LOGIN1)
+            page.locator("input[name='txtUser']").fill(login)
+            page.locator("input[name='txtPassword']").fill(password)
             page.get_by_role("button", name="Login").click()
             page.wait_for_load_state("networkidle")
 
@@ -60,7 +71,12 @@ def run_automation():
                         search_bar.press('Enter')
 
                         if i == 'Degelo':
-                            search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
+                            # Exception VM Belvedere
+                            if 'Belvedere' in store_name:
+                                search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
+                            else:
+                                search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
+
                             search = search.locator("xpath=following-sibling::td").last   
                             search = search.locator("span[class^='boss icon-led color-']")
                             search = search.get_attribute("class")
@@ -68,13 +84,16 @@ def run_automation():
                                 search = True
                             else:
                                 search = False
-                            print(search)
                         else:
                             search = iframe_child.locator(f"tbody > tr > td:has-text('{i}')").last
                             search = search.locator("xpath=following-sibling::td").last
                             search = search.inner_text()
 
-                            search = float(search[:-3])
+                            try:
+                                search = float(search[:-3])
+                            except Exception as _:
+                                if '*' in search:
+                                    pass 
                         env_data.append((i, search))
 
                         search_bar.clear()
@@ -92,4 +111,5 @@ def run_automation():
 
 
 if __name__ == "__main__":
-    run_automation()
+    for url, user, password in login_info:
+        run_automation(url, user, password)
