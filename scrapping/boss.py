@@ -32,7 +32,7 @@ def run_automation():
             # ====== Data Extracted ======
             store_name = page.locator("div[id='DateTime'] > div.nopadding > b").inner_text()
             env_names_list = []
-            search_for_data = ['tEu', 'tGs', 'SrG', 'd/1']
+            search_for_data = ['tEu', 'tGs', 'SrG', 'd/1', 'Degelo']
             data_extracted = []
 
             # ====== Iframes ======
@@ -60,12 +60,21 @@ def run_automation():
                         search_bar.fill(f'{i}')
                         search_bar.press('Enter')
 
-                        search = iframe_child.locator(f"tbody > tr > td:has-text('{i}')").last
-                        search = search.locator("xpath=following-sibling::td").last
-                        search = search.inner_text()
+                        if i == 'Degelo':
+                            search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
+                            search = search.locator("xpath=following-sibling::td").last   
+                            search = search.locator("span[class^='boss icon-led color-']")
+                            search = search.get_attribute("class")
+                            if int(search[-1]):
+                                search = True
+                            else:
+                                search = False
+                            print(search)
+                        else:
+                            search = iframe_child.locator(f"tbody > tr > td:has-text('{i}')").last
+                            search = search.locator("xpath=following-sibling::td").last
+                            search = search.inner_text()
 
-                        # clean the data (degelo pending)
-                        if not i == 'Degelo':
                             search = float(search[:-3])
                         env_data.append((i, search))
 
