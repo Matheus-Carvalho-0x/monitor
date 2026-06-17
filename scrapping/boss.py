@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 # ===== Settings ======
 load_dotenv()
 
-URL_LOGIN1 = os.getenv("SCRAPPING_TARGET_URL1")
-USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN1")
-PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD1")
+URL_LOGIN1 = os.getenv("SCRAPPING_TARGET_URL2")
+USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN2")
+PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD2")
 
 def run_automation():
     # ====== Playwright Settings ======
@@ -45,8 +45,7 @@ def run_automation():
             env_list = iframe_child.locator("div.row div[class='col-xs-12 col-sm-12 col-md-4 col-lg-4 btn nopadding']").all()
             for e in env_list:
                 env_txt = e.locator("tr.border-underline th:first-of-type").inner_text()
-                # Improve the if-else
-                if 'Congelados' in env_txt:
+                if ('Congelados' in env_txt) or ('Cong' in env_txt):
                     env_names_list.append(env_txt)
                 
                     e.click()
