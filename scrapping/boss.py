@@ -14,14 +14,17 @@ PASSWORD_LOGIN2 = os.getenv("SCRAPPING_PASSWORD2")
 URL_LOGIN3 = os.getenv("SCRAPPING_TARGET_URL3")
 USER_LOGIN3 = os.getenv("SCRAPPING_LOGIN3")
 PASSWORD_LOGIN3 = os.getenv("SCRAPPING_PASSWORD3")
+SEARCH_LIST1 = os.getenv("SEARCH_LIST1", "").split(",")
+SEARCH_LIST2 = os.getenv("SEARCH_LIST2", "").split(",")
+SEARCH_LIST3 = os.getenv("SEARCH_LIST3", "").split(",")
 
 login_info = [
-    (URL_LOGIN1, USER_LOGIN1, PASSWORD_LOGIN1),
-    (URL_LOGIN2, USER_LOGIN2, PASSWORD_LOGIN2),
-    (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3),
+    (URL_LOGIN1, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
+    (URL_LOGIN2, USER_LOGIN2, PASSWORD_LOGIN2, SEARCH_LIST2),
+    (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
 ]
 
-def run_automation(url, login, password):
+def run_automation(url, login, password, search_list):
     # ====== Playwright Settings ======
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -43,7 +46,6 @@ def run_automation(url, login, password):
 
             # ====== Data Extracted ======
             store_name = page.locator("div[id='DateTime'] > div.nopadding > b").inner_text()
-            search_for_data = ['tEu', 'tGs', 'SrG', 'd/1', 'Degelo']
             data_extracted = []
 
             # ====== Iframes ======
@@ -66,7 +68,7 @@ def run_automation(url, login, password):
                         page.wait_for_load_state("networkidle")
                         
                         env_data = []
-                        for i in search_for_data:
+                        for i in search_list:
                             search_bar = iframe_child.locator("input[id='txtFilter']")
                             search_bar.fill(f'{i}')
                             search_bar.press('Enter')
@@ -128,5 +130,5 @@ def run_automation(url, login, password):
 
 
 if __name__ == "__main__":
-    for url, user, password in login_info:
-        run_automation(url, user, password)
+    for url, user, password, search_list in login_info:
+        run_automation(url, user, password, search_list)
