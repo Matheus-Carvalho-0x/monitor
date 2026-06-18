@@ -90,8 +90,8 @@ def run_automation(url, login, password):
                                 # ====== Save Env Data ======
                                 env_data.append((i, search))
                                 data_extracted.append((env_txt, env_data))
-
                                 page.locator("div[class='hidden-xs hidden-sm btn btn-lg nopadding novpadding']").click()
+                                page.wait_for_load_state("networkidle")
                                 success = True
                             else:
                                 search = iframe_child.locator(f"tbody > tr > td:has-text('{i}')").last
@@ -105,7 +105,7 @@ def run_automation(url, login, password):
                                     search_bar.clear()
 
                                 except Exception as exc:
-                                    if '***' in search:
+                                    if '*' in search:
                                         if err < 10:
                                             err += 1
                                             page.locator("div[class='hidden-xs hidden-sm btn btn-lg nopadding novpadding']").click()
