@@ -6,28 +6,28 @@ from dotenv import load_dotenv
 load_dotenv()
 
 URL_LOGIN1 = os.getenv("SCRAPPING_TARGET_URL1")
+URL_LOGIN2 = os.getenv("SCRAPPING_TARGET_URL2")
+URL_LOGIN3 = os.getenv("SCRAPPING_TARGET_URL3")
+
 USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN1")
 PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD1")
-URL_LOGIN2 = os.getenv("SCRAPPING_TARGET_URL2")
 USER_LOGIN2 = os.getenv("SCRAPPING_LOGIN2")
 PASSWORD_LOGIN2 = os.getenv("SCRAPPING_PASSWORD2")
-URL_LOGIN3 = os.getenv("SCRAPPING_TARGET_URL3")
 USER_LOGIN3 = os.getenv("SCRAPPING_LOGIN3")
 PASSWORD_LOGIN3 = os.getenv("SCRAPPING_PASSWORD3")
+
 SEARCH_LIST1 = os.getenv("SEARCH_LIST1", "").split(",")
-SEARCH_LIST2 = os.getenv("SEARCH_LIST2", "").split(",")
-SEARCH_LIST3 = os.getenv("SEARCH_LIST3", "").split(",")
 
 login_info = [
     (URL_LOGIN1, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
-    (URL_LOGIN2, USER_LOGIN2, PASSWORD_LOGIN2, SEARCH_LIST2),
-    (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
+    (URL_LOGIN2, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
+    (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST1),
 ]
 
 def run_automation(url, login, password, search_list):
     # ====== Playwright Settings ======
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context(ignore_https_errors=True)
         page = context.new_page()
 
@@ -35,9 +35,8 @@ def run_automation(url, login, password, search_list):
 
         # ====== Login ======
         try:
-            # adjust
-            page.locator("button[@id='details-button']").click()
-            page.locator("a[@id='proceed-link']").click()
+            page.locator("button[id='details-button']").click()
+            page.locator("a[id='proceed-link']").click()
         except Exception as _:
             page.locator("input[name='txtUser']").fill(login)
             page.locator("input[name='txtPassword']").fill(password)
