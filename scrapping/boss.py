@@ -8,6 +8,7 @@ load_dotenv()
 URL_LOGIN1 = os.getenv("SCRAPPING_TARGET_URL1")
 URL_LOGIN2 = os.getenv("SCRAPPING_TARGET_URL2")
 URL_LOGIN3 = os.getenv("SCRAPPING_TARGET_URL3")
+URL_LOGIN4 = os.getenv("SCRAPPING_TARGET_URL4")
 
 USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN1")
 PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD1")
@@ -17,17 +18,24 @@ USER_LOGIN3 = os.getenv("SCRAPPING_LOGIN3")
 PASSWORD_LOGIN3 = os.getenv("SCRAPPING_PASSWORD3")
 
 SEARCH_LIST1 = os.getenv("SEARCH_LIST1", "").split(",")
+SEARCH_LIST2 = os.getenv("SEARCH_LIST2", "").split(",")
 
 login_info = [
     (URL_LOGIN1, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
     (URL_LOGIN2, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
     (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST1),
+    (URL_LOGIN4, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST2),
 ]
+
+# ===== SETUP IF-ELSE =====
+cong_name_list = ['Congelados', 'Cong', 'congelados', 'cong']
+def_name_list = ['Degelo', 'degelo', 'Defrost', 'defrost']
+exception_list = ['IR 33 77 - UC Congelados']
 
 def run_automation(url, login, password, search_list):
     # ====== Playwright Settings ======
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(headless=False)
         context = browser.new_context(ignore_https_errors=True)
         page = context.new_page()
 
@@ -60,7 +68,12 @@ def run_automation(url, login, password, search_list):
                 err = 0
                 while not success:
                     env_txt = e.locator("tr.border-underline th:first-of-type").inner_text()
-                    if ('Congelados' in env_txt) or ('Cong' in env_txt):
+                    cong_flag = False
+                    for t in cong_name_list:
+                        if env_txt not in exception_list:
+                            if t in env_txt:
+                                cong_flag = True
+                    if cong_flag:
                         e.click()
                         page.wait_for_load_state("networkidle")
                         iframe_father.locator("li[data-original-title='Variáveis'] > a").click()
@@ -72,9 +85,9 @@ def run_automation(url, login, password, search_list):
                             search_bar.fill(f'{i}')
                             search_bar.press('Enter')
 
-                            if i == 'Degelo':
+                            if i in def_name_list:
                                 # Exception VM Belvedere
-                                if 'Belvedere' in store_name:
+                                if store_name in ['12041 Verdemar Belvedere', 'Verdemar Padaria Cataguases']:
                                     search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
                                 else:
                                     search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
