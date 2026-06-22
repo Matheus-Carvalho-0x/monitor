@@ -12,6 +12,7 @@ URL_LOGIN4 = os.getenv("SCRAPPING_TARGET_URL4")
 URL_LOGIN5 = os.getenv("SCRAPPING_TARGET_URL5")
 URL_LOGIN6 = os.getenv("SCRAPPING_TARGET_URL6")
 URL_LOGIN7 = os.getenv("SCRAPPING_TARGET_URL7")
+URL_LOGIN8 = os.getenv("SCRAPPING_TARGET_URL8")
 
 USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN1")
 PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD1")
@@ -32,6 +33,7 @@ login_info = [
     (URL_LOGIN5, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
     (URL_LOGIN6, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
     (URL_LOGIN7, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
+    (URL_LOGIN8, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
 ]
 
 # ===== SETUP IF-ELSE =====
@@ -96,7 +98,7 @@ def run_automation(url, login, password, search_list):
                                 # Exception VM Belvedere
                                 if store_name in ['12041 Verdemar Belvedere', 'Verdemar Padaria Cataguases', 
                                                   '12016 Superluna Palmeiras', '12025 Superluna Cachoeira',
-                                                  'Superluna Angola']:
+                                                  'Superluna Angola', 'Superluna Lagoinha']:
                                     search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
                                 else:
                                     search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
@@ -118,8 +120,8 @@ def run_automation(url, login, password, search_list):
                                 success = True
                             else:
                                 if store_name in ['12016 Superluna Palmeiras', '12025 Superluna Cachoeira',
-                                                  'Superluna Angola']:
-                                    if (store_name == 'Superluna Angola') and (i == 'TpEvap'):
+                                                  'Superluna Angola', 'Superluna Lagoinha']:
+                                    if (store_name in ['Superluna Angola', 'Superluna Lagoinha']) and (i == 'TpEvap'):
                                         # Exception SL Angola
                                         search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
                                         search = search.locator("xpath=following-sibling::td").last
