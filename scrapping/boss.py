@@ -10,6 +10,7 @@ URL_LOGIN2 = os.getenv("SCRAPPING_TARGET_URL2")
 URL_LOGIN3 = os.getenv("SCRAPPING_TARGET_URL3")
 URL_LOGIN4 = os.getenv("SCRAPPING_TARGET_URL4")
 URL_LOGIN5 = os.getenv("SCRAPPING_TARGET_URL5")
+URL_LOGIN6 = os.getenv("SCRAPPING_TARGET_URL6")
 
 USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN1")
 PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD1")
@@ -28,6 +29,7 @@ login_info = [
     (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST1),
     (URL_LOGIN4, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST2),
     (URL_LOGIN5, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
+    (URL_LOGIN6, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
 ]
 
 # ===== SETUP IF-ELSE =====
@@ -91,7 +93,7 @@ def run_automation(url, login, password, search_list):
                             if i in def_name_list:
                                 # Exception VM Belvedere
                                 if store_name in ['12041 Verdemar Belvedere', 'Verdemar Padaria Cataguases', 
-                                                  '12016 Superluna Palmeiras']:
+                                                  '12016 Superluna Palmeiras', '12025 Superluna Cachoeira']:
                                     search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
                                 else:
                                     search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
@@ -112,21 +114,15 @@ def run_automation(url, login, password, search_list):
                                 page.wait_for_load_state("networkidle")
                                 success = True
                             else:
-                                if store_name == '12016 Superluna Palmeiras':
-                                    # SL Palmeiras Exception 
-                                    if i == 'Temp degelo':
-                                        search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
-                                        search = search.locator("xpath=following-sibling::td").last
-                                        search = search.inner_text()
-                                    else:
-                                        search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
-                                        search = search.locator("xpath=following-sibling::td").last
-                                        search = search.inner_text()
+                                if store_name in ['12016 Superluna Palmeiras', '12025 Superluna Cachoeira']:
+                                    # SL Palmeiras & Cachoeira Exception
+                                    search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
+                                    search = search.locator("xpath=following-sibling::td").last
+                                    search = search.inner_text()
                                 else:
                                     search = iframe_child.locator(f"tbody > tr > td:has-text('{i}')").last
                                     search = search.locator("xpath=following-sibling::td").last
                                     search = search.inner_text()
-
                                 try:
                                     search = float(search[:-3])
                                     env_data.append((i, search))
