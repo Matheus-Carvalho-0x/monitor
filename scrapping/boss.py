@@ -14,6 +14,7 @@ URL_LOGIN6 = os.getenv("SCRAPPING_TARGET_URL6")
 URL_LOGIN7 = os.getenv("SCRAPPING_TARGET_URL7")
 URL_LOGIN8 = os.getenv("SCRAPPING_TARGET_URL8")
 URL_LOGIN9 = os.getenv("SCRAPPING_TARGET_URL9")
+URL_LOGIN10 = os.getenv("SCRAPPING_TARGET_URL10")
 
 USER_LOGIN1 = os.getenv("SCRAPPING_LOGIN1")
 PASSWORD_LOGIN1 = os.getenv("SCRAPPING_PASSWORD1")
@@ -36,6 +37,7 @@ login_info = [
     (URL_LOGIN7, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
     (URL_LOGIN8, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
     (URL_LOGIN9, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
+    # (URL_LOGIN10, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
 ]
 
 # ===== SETUP IF-ELSE =====
@@ -80,10 +82,15 @@ def run_automation(url, login, password, search_list):
                 while not success:
                     env_txt = e.locator("tr.border-underline th:first-of-type").inner_text()
                     cong_flag = False
-                    for t in cong_name_list:
-                        if env_txt not in exception_list:
-                            if t in env_txt:
-                                cong_flag = True
+                    # Exception SL Express Betim
+                    if store_name == 'Superluna Express Loja Betim':
+                        if 'Eco' in store_name:
+                            cong_flag = True
+                    else:
+                        for t in cong_name_list:
+                            if env_txt not in exception_list:
+                                if t in env_txt:
+                                    cong_flag = True
                     if cong_flag:
                         e.click()
                         page.wait_for_load_state("networkidle")
@@ -100,7 +107,7 @@ def run_automation(url, login, password, search_list):
                                 # Exception VM Belvedere
                                 if store_name in ['12041 Verdemar Belvedere', 'Verdemar Padaria Cataguases', 
                                                   '12016 Superluna Palmeiras', '12025 Superluna Cachoeira',
-                                                  'Superluna Angola', 'Superluna Lagoinha']:
+                                                  'Superluna Angola', 'Superluna Lagoinha', 'Superluna Express Loja Betim']:
                                     search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
                                 else:
                                     search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
@@ -122,7 +129,8 @@ def run_automation(url, login, password, search_list):
                                 success = True
                             else:
                                 if store_name in ['12016 Superluna Palmeiras', '12025 Superluna Cachoeira',
-                                                  'Superluna Angola', 'Superluna Lagoinha', '10018 Superluna Laguna Mall']:
+                                                  'Superluna Angola', 'Superluna Lagoinha', '10018 Superluna Laguna Mall',
+                                                  'Superluna Express Loja Betim']:
                                     if (store_name in ['Superluna Angola', 'Superluna Lagoinha']) and (i == 'TpEvap'):
                                         # Exception SL Angola
                                         search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
