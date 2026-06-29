@@ -37,7 +37,7 @@ login_info = [
     (URL_LOGIN7, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
     (URL_LOGIN8, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
     (URL_LOGIN9, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
-    # (URL_LOGIN10, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
+    (URL_LOGIN10, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
 ]
 
 # ===== SETUP IF-ELSE =====
@@ -84,7 +84,7 @@ def run_automation(url, login, password, search_list):
                     cong_flag = False
                     # Exception SL Express Betim
                     if store_name == 'Superluna Express Loja Betim':
-                        if 'Eco' in store_name:
+                        if 'Eco' in env_txt:
                             cong_flag = True
                     else:
                         for t in cong_name_list:
