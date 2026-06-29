@@ -28,16 +28,16 @@ SEARCH_LIST2 = os.getenv("SEARCH_LIST2", "").split(",")
 SEARCH_LIST3 = os.getenv("SEARCH_LIST3", "").split(",")
 
 login_info = [
-    (URL_LOGIN1, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
-    (URL_LOGIN2, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
-    (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST1),
-    (URL_LOGIN4, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST2),
-    (URL_LOGIN5, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
-    (URL_LOGIN6, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
-    (URL_LOGIN7, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
+    # (URL_LOGIN1, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
+    # (URL_LOGIN2, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST1),
+    # (URL_LOGIN3, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST1),
+    # (URL_LOGIN4, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST2),
+    # (URL_LOGIN5, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
+    # (URL_LOGIN6, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
+    # (URL_LOGIN7, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
     (URL_LOGIN8, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
-    (URL_LOGIN9, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
-    (URL_LOGIN10, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
+    # (URL_LOGIN9, USER_LOGIN3, PASSWORD_LOGIN3, SEARCH_LIST3),
+    # (URL_LOGIN10, USER_LOGIN1, PASSWORD_LOGIN1, SEARCH_LIST3),
 ]
 
 # ===== SETUP IF-ELSE =====
@@ -72,105 +72,128 @@ def run_automation(url, login, password, search_list):
             iframe_father = page.frame_locator("#body")
             iframe_child = iframe_father.frame_locator("#bodytab")
 
+            # ALARMS
+            page.wait_for_load_state("networkidle")
+            iframe_father.locator("li[data-original-title='Alarmes'] > a").click()
+            page.wait_for_load_state("networkidle")
+            # Trick to wait until one exists
+            iframe_child.locator("table[id='TAlarm'] > tbody > tr").first.wait_for()
+            # alarms_raw_list = iframe_child.locator("table[id='TAlarm'] > tbody > tr > td > div > a[class='hand-cursor']").all()
+            alarms_raw_list = iframe_child.locator("table[id='TAlarm'] > tbody > tr").all()
+            for i in alarms_raw_list:
+                i.locator("td").first.wait_for()
+                u = i.locator("td").all()
+                u.pop(0)
+                u.pop()
+                u.pop()
+                data = u[0].inner_text()
+                alarme = u[1].locator("div:first-of-type > a.hand-cursor").inner_text()
+                env = u[2].locator("a.hand-cursor").inner_text()
+                print(data, alarme, env)
+                print("===========================")
+                # print(i)
+                # print("===========================")
+            # ==============================================================================================================
+
             # ====== Env List ======
             # Here I get all the envs, and while i filter the 'cong' ones i save the env name,
             # extract all the env data.
-            env_list = iframe_child.locator("div.row div[class='col-xs-12 col-sm-12 col-md-4 col-lg-4 btn nopadding']").all()
-            for e in env_list:
-                success = False
-                err = 0
-                while not success:
-                    env_txt = e.locator("tr.border-underline th:first-of-type").inner_text()
-                    cong_flag = False
-                    # Exception SL Express Betim
-                    if store_name == 'Superluna Express Loja Betim':
-                        if 'Eco' in env_txt:
-                            cong_flag = True
-                    else:
-                        for t in cong_name_list:
-                            if env_txt not in exception_list:
-                                if t in env_txt:
-                                    cong_flag = True
-                    if cong_flag:
-                        e.click()
-                        page.wait_for_load_state("networkidle")
-                        iframe_father.locator("li[data-original-title='Variáveis'] > a").click()
-                        page.wait_for_load_state("networkidle")
+            # env_list = iframe_child.locator("div.row div[class='col-xs-12 col-sm-12 col-md-4 col-lg-4 btn nopadding']").all()
+            # for e in env_list:
+            #     success = False
+            #     err = 0
+            #     while not success:
+            #         env_txt = e.locator("tr.border-underline th:first-of-type").inner_text()
+            #         cong_flag = False
+            #         # Exception SL Express Betim
+            #         if store_name == 'Superluna Express Loja Betim':
+            #             if 'Eco' in env_txt:
+            #                 cong_flag = True
+            #         else:
+            #             for t in cong_name_list:
+            #                 if env_txt not in exception_list:
+            #                     if t in env_txt:
+            #                         cong_flag = True
+            #         if cong_flag:
+            #             e.click()
+            #             page.wait_for_load_state("networkidle")
+            #             iframe_father.locator("li[data-original-title='Variáveis'] > a").click()
+            #             page.wait_for_load_state("networkidle")
                         
-                        env_data = []
-                        for i in search_list:
-                            search_bar = iframe_child.locator("input[id='txtFilter']")
-                            search_bar.fill(f'{i}')
-                            search_bar.press('Enter')
+            #             env_data = []
+            #             for i in search_list:
+            #                 search_bar = iframe_child.locator("input[id='txtFilter']")
+            #                 search_bar.fill(f'{i}')
+            #                 search_bar.press('Enter')
 
-                            if i in def_name_list:
-                                # Exception VM Belvedere
-                                if store_name in ['12041 Verdemar Belvedere', 'Verdemar Padaria Cataguases', 
-                                                  '12016 Superluna Palmeiras', '12025 Superluna Cachoeira',
-                                                  'Superluna Angola', 'Superluna Lagoinha', 'Superluna Express Loja Betim']:
-                                    search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
-                                else:
-                                    search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
+            #                 if i in def_name_list:
+            #                     # Exception VM Belvedere
+            #                     if store_name in ['12041 Verdemar Belvedere', 'Verdemar Padaria Cataguases', 
+            #                                       '12016 Superluna Palmeiras', '12025 Superluna Cachoeira',
+            #                                       'Superluna Angola', 'Superluna Lagoinha', 'Superluna Express Loja Betim']:
+            #                         search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
+            #                     else:
+            #                         search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
 
-                                search = search.locator("xpath=following-sibling::td").last   
-                                search = search.locator("span[class^='boss icon-led color-']")
-                                search = search.get_attribute("class")
-                                if int(search[-1]):
-                                    search = True
-                                else:
-                                    search = False
+            #                     search = search.locator("xpath=following-sibling::td").last   
+            #                     search = search.locator("span[class^='boss icon-led color-']")
+            #                     search = search.get_attribute("class")
+            #                     if int(search[-1]):
+            #                         search = True
+            #                     else:
+            #                         search = False
 
-                                # This is here because the 'Degelo' will always be the last info extracted
-                                # ====== Save Env Data ======
-                                env_data.append((i, search))
-                                data_extracted.append((env_txt, env_data))
-                                page.locator("div[class='hidden-xs hidden-sm btn btn-lg nopadding novpadding']").click()
-                                page.wait_for_load_state("networkidle")
-                                success = True
-                            else:
-                                if store_name in ['12016 Superluna Palmeiras', '12025 Superluna Cachoeira',
-                                                  'Superluna Angola', 'Superluna Lagoinha', '10018 Superluna Laguna Mall',
-                                                  'Superluna Express Loja Betim']:
-                                    if (store_name in ['Superluna Angola', 'Superluna Lagoinha']) and (i == 'TpEvap'):
-                                        # Exception SL Angola
-                                        search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
-                                        search = search.locator("xpath=following-sibling::td").last
-                                        search = search.inner_text()
-                                    else:
-                                        # Exception SL Laguna Mall
-                                        if (store_name == '10018 Superluna Laguna Mall') and (i == 'Temp degelo'):
-                                            continue
-                                        # Exception SL Palmeiras 
-                                        search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
-                                        search = search.locator("xpath=following-sibling::td").last
-                                        search = search.inner_text()
-                                else:
-                                    search = iframe_child.locator(f"tbody > tr > td:has-text('{i}')").last
-                                    search = search.locator("xpath=following-sibling::td").last
-                                    search = search.inner_text()
-                                try:
-                                    search = float(search[:-3])
-                                    env_data.append((i, search))
+            #                     # This is here because the 'Degelo' will always be the last info extracted
+            #                     # ====== Save Env Data ======
+            #                     env_data.append((i, search))
+            #                     data_extracted.append((env_txt, env_data))
+            #                     page.locator("div[class='hidden-xs hidden-sm btn btn-lg nopadding novpadding']").click()
+            #                     page.wait_for_load_state("networkidle")
+            #                     success = True
+            #                 else:
+            #                     if store_name in ['12016 Superluna Palmeiras', '12025 Superluna Cachoeira',
+            #                                       'Superluna Angola', 'Superluna Lagoinha', '10018 Superluna Laguna Mall',
+            #                                       'Superluna Express Loja Betim']:
+            #                         if (store_name in ['Superluna Angola', 'Superluna Lagoinha']) and (i == 'TpEvap'):
+            #                             # Exception SL Angola
+            #                             search = iframe_child.locator(f"tbody > tr:last-of-type > td:has-text('{i}')").last
+            #                             search = search.locator("xpath=following-sibling::td").last
+            #                             search = search.inner_text()
+            #                         else:
+            #                             # Exception SL Laguna Mall
+            #                             if (store_name == '10018 Superluna Laguna Mall') and (i == 'Temp degelo'):
+            #                                 continue
+            #                             # Exception SL Palmeiras 
+            #                             search = iframe_child.locator(f"tbody > tr:first-of-type > td:has-text('{i}')").last
+            #                             search = search.locator("xpath=following-sibling::td").last
+            #                             search = search.inner_text()
+            #                     else:
+            #                         search = iframe_child.locator(f"tbody > tr > td:has-text('{i}')").last
+            #                         search = search.locator("xpath=following-sibling::td").last
+            #                         search = search.inner_text()
+            #                     try:
+            #                         search = float(search[:-3])
+            #                         env_data.append((i, search))
 
-                                    search_bar.clear()
+            #                         search_bar.clear()
 
-                                except Exception as exc:
-                                    if '*' in search:
-                                        if err < 10:
-                                            err += 1
-                                            page.locator("div[class='hidden-xs hidden-sm btn btn-lg nopadding novpadding']").click()
-                                        else:
-                                            print("CRITICAL ERROR! INFINITE LOOP!")
-                                            context.close()
-                                            browser.close()
-                                    else:
-                                        print(exc)
-                                        context.close()
-                                        browser.close()
-                    else:     
-                        success = True
+            #                     except Exception as exc:
+            #                         if '*' in search:
+            #                             if err < 10:
+            #                                 err += 1
+            #                                 page.locator("div[class='hidden-xs hidden-sm btn btn-lg nopadding novpadding']").click()
+            #                             else:
+            #                                 print("CRITICAL ERROR! INFINITE LOOP!")
+            #                                 context.close()
+            #                                 browser.close()
+            #                         else:
+            #                             print(exc)
+            #                             context.close()
+            #                             browser.close()
+            #         else:     
+            #             success = True
 
-            print((store_name, data_extracted))
+            # print((store_name, data_extracted))
 
             # CLOSING ALL PROPERLY
             context.close()
